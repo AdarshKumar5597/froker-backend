@@ -2,7 +2,7 @@ const Blog = require("../models/blogModel");
 
 exports.getBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find();
+    const blogs = await Blog.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       blogs,
@@ -12,40 +12,6 @@ exports.getBlogs = async (req, res) => {
       success: false,
       message: error.message,
       error: "Server Error in getBlogs",
-    });
-  }
-};
-
-exports.getBlogsByIndex = async (req, res) => {
-  try {
-
-    const startIndex = parseInt(req.query.startIndex);
-    const endIndex = parseInt(req.query.endIndex);
-
-    console.log("startIndex:", startIndex);
-    console.log("endIndex:", endIndex);
-
-    if (startIndex < 0 || endIndex < 0) {
-      return res.status(400).json({ success: false, message: "Invalid index" });
-    }
-
-    if (startIndex === undefined || endIndex === undefined) {
-        return res.status(400).json({ success: false, message: "Missing index" });
-    }
-
-    const blogs = await Blog.find()
-      .skip(startIndex)
-      .limit(endIndex - startIndex);
-
-    res.status(200).json({
-      success: true,
-      blogs,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      error: "Server Error in getBlogsByIndex",
     });
   }
 };
@@ -159,3 +125,35 @@ exports.addBlog = async (req, res) => {
     });
   }
 };
+
+exports.addManyBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.insertMany(req.body);
+    res.status(201).json({
+      success: true,
+      blogs,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: "Server Error in addManyBlogs",
+    });
+  }
+}
+
+exports.getPopularPosts = async (req, res) => {
+  try {
+    const blogs = await Blog.find().sort({ likes: -1 });
+    res.status(200).json({
+      success: true,
+      blogs,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      error: "Server Error in getPopularPosts",
+    });
+  }
+}
